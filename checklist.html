@@ -1,0 +1,2183 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Meme Coin Screening Tool</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #00d4aa;
+            --secondary: #7c3aed;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+            --dark: #0f172a;
+            --darker: #020617;
+            --light: #f8fafc;
+            --gray: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            color: var(--light);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 2px solid var(--primary);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+         font-size: 2.5rem;
+         background: linear-gradient(90deg, var(--primary), var(--secondary));
+         background-clip: text;
+         -webkit-background-clip: text;
+         -webkit-text-fill-color: transparent;
+         color: transparent;
+         margin-bottom: 10px;
+        }
+
+        .header p {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            color: var(--light);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .tab-btn.active {
+            border-color: var(--primary);
+            background: rgba(0, 212, 170, 0.2);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card h3 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h4 {
+            color: var(--secondary);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        /* Form Grid */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            color: var(--gray);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: var(--light);
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255,255,255,0.15);
+        }
+
+        .form-group input.error {
+            border-color: var(--danger);
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .form-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox-item:hover {
+            color: var(--primary);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 212, 170, 0.3);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: var(--light);
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* Results */
+        .result-box {
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .result-safe {
+            background: rgba(16, 185, 129, 0.2);
+            border: 2px solid var(--success);
+            color: var(--success);
+        }
+
+        .result-warning {
+            background: rgba(245, 158, 11, 0.2);
+            border: 2px solid var(--warning);
+            color: var(--warning);
+        }
+
+        .result-danger {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid var(--danger);
+            color: var(--danger);
+        }
+
+        /* Score Display */
+        .score-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .score-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .score-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .score-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        th {
+            background: rgba(0, 212, 170, 0.2);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-buy {
+            background: rgba(16, 185, 129, 0.3);
+            color: var(--success);
+        }
+
+        .status-watch {
+            background: rgba(245, 158, 11, 0.3);
+            color: var(--warning);
+        }
+
+        .status-skip {
+            background: rgba(239, 68, 68, 0.3);
+            color: var(--danger);
+        }
+
+        /* Charts */
+        .chart-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-top: 30px;
+        }
+
+        .chart-box {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .chart-box h4 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(0, 212, 170, 0.2), rgba(124, 58, 237, 0.2));
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--gray);
+            margin-top: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab-btn {
+                width: 100%;
+            }
+
+            .chart-container {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-top: 15px;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.5s ease;
+            border-radius: 5px;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: var(--success);
+        }
+
+        .notification.error {
+            background: var(--danger);
+        }
+
+        .notification.warning {
+            background: var(--warning);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--dark);
+            border: 2px solid var(--primary);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .modal-header h3 {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--gray);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: var(--danger);
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .detail-section {
+            margin-bottom: 25px;
+        }
+
+        .detail-section h4 {
+            color: var(--secondary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .detail-item {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .detail-label {
+            color: var(--gray);
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            color: var(--light);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .checklist-review {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+        }
+
+        .checklist-item.checked {
+            background: rgba(16, 185, 129, 0.2);
+            border-left: 3px solid var(--success);
+        }
+
+        .checklist-item.unchecked {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 3px solid var(--danger);
+            opacity: 0.6;
+        }
+
+        .check-icon {
+            font-size: 1.2rem;
+        }
+
+        .check-icon.checked {
+            color: var(--success);
+        }
+
+        .check-icon.unchecked {
+            color: var(--danger);
+        }
+
+        /* Warning Box */
+        .warning-box {
+            background: rgba(245, 158, 11, 0.2);
+            border: 2px solid var(--warning);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .warning-box.show {
+            display: flex;
+        }
+
+        .warning-box i {
+            font-size: 1.5rem;
+            color: var(--warning);
+        }
+
+        .warning-box p {
+            color: var(--warning);
+            font-weight: 600;
+        }
+
+        /* Action Buttons in Table */
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            margin-right: 5px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .action-btn-view {
+            background: rgba(0, 212, 170, 0.3);
+            color: var(--primary);
+        }
+
+        .action-btn-view:hover {
+            background: rgba(0, 212, 170, 0.5);
+        }
+
+        .action-btn-delete {
+            background: rgba(239, 68, 68, 0.3);
+            color: var(--danger);
+        }
+
+        .action-btn-delete:hover {
+            background: rgba(239, 68, 68, 0.5);
+        }
+
+        /* ==================== FIX DROPDOWN CHAIN ==================== */
+
+/* Fix untuk Select Element */
+.form-group select {
+    color: var(--light) !important;
+    background-color: rgba(255,255,255,0.1) !important;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding-right: 40px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2300d4aa' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+}
+
+/* Fix untuk Option di Dalam Select */
+.form-group select option {
+    background-color: var(--dark) !important;
+    color: var(--light) !important;
+    padding: 10px;
+    font-size: 1rem;
+}
+
+/* Fix untuk Option saat Hover */
+.form-group select option:hover {
+    background-color: var(--primary) !important;
+    color: var(--darker) !important;
+}
+
+/* Fix untuk Select saat Focus */
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.2);
+}
+
+/* Fix untuk Select yang Disabled */
+.form-group select:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Custom Arrow untuk Select */
+.select-wrapper {
+    position: relative;
+}
+
+.select-wrapper::after {
+    content: '▼';
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary);
+    pointer-events: none;
+    font-size: 0.8rem;
+}
+
+/* ==================== FIX CONTRACT ADDRESS ==================== */
+
+/* Container untuk CA yang bisa di-klik */
+.ca-container {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.ca-container:hover {
+    background: rgba(0, 212, 170, 0.1) !important;
+    border-color: var(--primary) !important;
+}
+
+.ca-container:active {
+    transform: scale(0.98);
+}
+
+/* Text CA dengan ellipsis */
+.ca-text {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    font-size: 0.85rem;
+    word-break: break-all;
+}
+
+/* Tooltip untuk full CA */
+.ca-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    background: var(--darker);
+    border: 1px solid var(--primary);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 0.75rem;
+    font-family: 'Courier New', monospace;
+    color: var(--light);
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s;
+    z-index: 100;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    max-width: 400px;
+    word-break: break-all;
+}
+
+.ca-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 8px solid transparent;
+    border-top-color: var(--primary);
+}
+
+.ca-container:hover .ca-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(-5px);
+}
+
+/* Copy icon indicator */
+.ca-copy-icon {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary);
+    font-size: 0.8rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.ca-container:hover .ca-copy-icon {
+    opacity: 1;
+}
+
+/* Detail item untuk CA */
+.detail-item.ca-item {
+    position: relative;
+    overflow: visible;
+}
+
+/* Toast Notification untuk Copy */
+.copy-toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: linear-gradient(135deg, var(--success), var(--primary));
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    z-index: 3000;
+    opacity: 0;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.copy-toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+.copy-toast-icon {
+    font-size: 1.2rem;
+}
+
+/* Fix untuk detail grid agar tidak overflow */
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    min-width: 0; /* Prevent grid overflow */
+}
+
+.detail-item {
+    background: rgba(255,255,255,0.05);
+    padding: 15px;
+    border-radius: 8px;
+    min-width: 0; /* Prevent flex overflow */
+    overflow: hidden; /* Hide overflow content */
+}
+
+.detail-value {
+    color: var(--light);
+    font-size: 1.1rem;
+    font-weight: 600;
+    word-break: break-word; /* Break long words */
+    max-width: 100%; /* Prevent overflow */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Khusus untuk CA, font lebih kecil */
+.detail-item.ca-item .detail-value {
+    font-size: 0.85rem;
+    font-family: 'Courier New', monospace;
+    line-height: 1.4;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🚀 Meme Coin Screening Tool</h1>
+            <p>Analisa & Checklist Meme Coin Profesional - Timeframe >1 Jam & &lt;1 Jam</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalTokens">0</div>
+                <div class="stat-label">Total Token Dianalisa</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="buySignals">0</div>
+                <div class="stat-label">Signal BUY</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="watchSignals">0</div>
+                <div class="stat-label">Signal WATCH</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="skipSignals">0</div>
+                <div class="stat-label">Signal SKIP</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('timeframe1h')">📊 Timeframe >1 Jam</button>
+            <button class="tab-btn" onclick="switchTab('timeframeLess1h')">⚡ Timeframe &lt;1 Jam</button>
+            <button class="tab-btn" onclick="switchTab('savedList')">💾 Daftar Token Tersimpan</button>
+            <button class="tab-btn" onclick="switchTab('analytics')">📈 Analytics & Grafik</button>
+        </div>
+
+        <!-- Tab 1: Timeframe > 1 Jam -->
+        <div id="timeframe1h" class="tab-content active">
+            <div class="card">
+                <h3>📋 Checklist Timeframe > 1 Jam (Swing/Intraday)</h3>
+                
+                <form id="form1h">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nama Token *</label>
+                            <input type="text" id="tokenName1h" placeholder="Contoh: PEPE2.0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Contract Address (CA) *</label>
+                            <input type="text" id="tokenCA1h" placeholder="0x..." required>
+                        </div>
+                        <div class="form-group">
+                            <label>Chain *</label>
+                            <select id="tokenChain1h" required>
+                                <option value="">Pilih Chain</option>
+                                <option value="Solana">Solana</option>
+                                <option value="Base">Base</option>
+                                <option value="Ethereum">Ethereum</option>
+                                <option value="BSC">BSC</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Market Cap ($) *</label>
+                            <input type="number" id="tokenMC1h" placeholder="100000" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Liquidity ($) *</label>
+                            <input type="number" id="tokenLiq1h" placeholder="20000" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Pair Age (Jam) *</label>
+                            <input type="number" id="tokenAge1h" placeholder="24" step="0.1" required>
+                        </div>
+                    </div>
+
+                    <div class="warning-box" id="warning1h">
+                        <i>⚠️</i>
+                        <p>Mohon masukkan info coin terlebih dahulu!</p>
+                    </div>
+
+                    <div class="card" style="margin-top: 20px;">
+                        <h4>🔒 Keamanan Teknis (Wajib)</h4>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="mintDisabled1h">
+                                Mint Authority Disabled
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="freezeDisabled1h">
+                                Freeze Authority Disabled
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="lpLocked1h">
+                                Liquidity Pool Locked/Burned
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="topHolders1h">
+                                Top 10 Holders < 35% Supply
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top: 20px;">
+                        <h4>📱 Fundamental & Narasi (Min. 3 dari 4)</h4>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="websiteOK1h">
+                                Website Profesional
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="twitterActive1h">
+                                Twitter/X Aktif & Organik
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="telegramOrganic1h">
+                                Telegram Komunitas Asli
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="narrativeUnique1h">
+                                Narasi Unik/Tren
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary" onclick="analyze1h()">🔍 Analisa Token</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetForm('form1h')">🔄 Reset</button>
+                        <button type="button" class="btn btn-primary" onclick="saveToken('1h')">💾 Simpan ke Daftar</button>
+                    </div>
+
+                    <div id="result1h" class="result-box" style="display: none;"></div>
+
+                    <div class="score-display" id="scoreDisplay1h" style="display: none;">
+                        <div class="score-item">
+                            <div class="score-value" id="ratioScore1h">0%</div>
+                            <div class="score-label">Rasio Liq/MC</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-value" id="securityScore1h">0</div>
+                            <div class="score-label">Skor Keamanan</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-value" id="fundamentalScore1h">0</div>
+                            <div class="score-label">Skor Fundamental</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-value" id="totalScore1h">0</div>
+                            <div class="score-label">Total Score</div>
+                        </div>
+                    </div>
+
+                    <div class="progress-container" id="progressContainer1h" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill1h" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-text">
+                            <span>Kelayakan Token</span>
+                            <span id="progressText1h">0%</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tab 2: Timeframe < 1 Jam -->
+        <div id="timeframeLess1h" class="tab-content">
+            <div class="card">
+                <h3>⚡ Checklist Timeframe < 1 Jam (Scalping/Sniping)</h3>
+                
+                <form id="formLess1h">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nama Token *</label>
+                            <input type="text" id="tokenNameLess1h" placeholder="Contoh: DOGE3" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Contract Address (CA) *</label>
+                            <input type="text" id="tokenCALess1h" placeholder="0x..." required>
+                        </div>
+                        <div class="form-group">
+                            <label>Chain *</label>
+                            <select id="tokenChainLess1h" required>
+                                <option value="">Pilih Chain</option>
+                                <option value="Solana">Solana</option>
+                                <option value="Base">Base</option>
+                                <option value="Ethereum">Ethereum</option>
+                                <option value="BSC">BSC</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Market Cap ($) *</label>
+                            <input type="number" id="tokenMCLess1h" placeholder="100000" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Liquidity ($) *</label>
+                            <input type="number" id="tokenLiqLess1h" placeholder="10000" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Pair Age (Menit) *</label>
+                            <input type="number" id="tokenAgeLess1h" placeholder="30" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Volume 5m ($) *</label>
+                            <input type="number" id="tokenVol5m" placeholder="5000" required>
+                        </div>
+                    </div>
+
+                    <div class="warning-box" id="warningLess1h">
+                        <i>⚠️</i>
+                        <p>Mohon masukkan info coin terlebih dahulu!</p>
+                    </div>
+
+                    <div class="card" style="margin-top: 20px;">
+                        <h4>🔒 Keamanan Kilat (Wajib Semua)</h4>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="rugCheckGood">
+                                RugCheck Status: Good/Very Good
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="lpLockedLess1h">
+                                LP Locked (Icon Gembok)
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="noHighRisk">
+                                No High Risk Warning
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="topHolderLess1h">
+                                Top Holder < 15% (Single Wallet)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top: 20px;">
+                        <h4>📈 Momentum (Min. 2 dari 3)</h4>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="volumeSpike">
+                                Volume Spike 5m Terakhir
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="priceFollowVolume">
+                                Harga Naik Ikuti Volume
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="newBuyers">
+                                New Buyers Konsisten (5+ wallet)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary" onclick="analyzeLess1h()">🔍 Analisa Token</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetForm('formLess1h')">🔄 Reset</button>
+                        <button type="button" class="btn btn-primary" onclick="saveToken('less1h')">💾 Simpan ke Daftar</button>
+                    </div>
+
+                    <div id="resultLess1h" class="result-box" style="display: none;"></div>
+
+                    <div class="score-display" id="scoreDisplayLess1h" style="display: none;">
+                        <div class="score-item">
+                            <div class="score-value" id="ratioScoreLess1h">0%</div>
+                            <div class="score-label">Rasio Liq/MC</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-value" id="securityScoreLess1h">0</div>
+                            <div class="score-label">Skor Keamanan</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-value" id="momentumScoreLess1h">0</div>
+                            <div class="score-label">Skor Momentum</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-value" id="totalScoreLess1h">0</div>
+                            <div class="score-label">Total Score</div>
+                        </div>
+                    </div>
+
+                    <div class="progress-container" id="progressContainerLess1h" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFillLess1h" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-text">
+                            <span>Kelayakan Token</span>
+                            <span id="progressTextLess1h">0%</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tab 3: Saved List -->
+        <div id="savedList" class="tab-content">
+            <div class="card">
+                <h3>💾 Daftar Token Tersimpan</h3>
+                <div class="btn-group" style="margin-bottom: 20px;">
+                    <button class="btn btn-secondary btn-small" onclick="exportData()">📥 Export CSV</button>
+                    <button class="btn btn-danger btn-small" onclick="clearAllData()">🗑️ Hapus Semua Data</button>
+                </div>
+                <div class="table-container">
+                    <table id="savedTable">
+                        <thead>
+                            <tr>
+                                <th>Waktu</th>
+                                <th>Token</th>
+                                <th>Chain</th>
+                                <th>MC ($)</th>
+                                <th>Liq ($)</th>
+                                <th>Rasio</th>
+                                <th>Score</th>
+                                <th>Status</th>
+                                <th>Keputusan</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="savedTableBody">
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="emptyState" style="text-align: center; padding: 40px; color: var(--gray); display: none;">
+                    <p style="font-size: 1.2rem; margin-bottom: 10px;">📭 Belum ada token tersimpan</p>
+                    <p>Analisa token pertama Anda dan simpan ke daftar!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: Analytics -->
+        <div id="analytics" class="tab-content">
+            <div class="card">
+                <h3>📈 Analytics & Grafik</h3>
+                <div class="chart-container">
+                    <div class="chart-box">
+                        <h4>🎯 Potensi Cuan vs Risiko Rug Pull</h4>
+                        <canvas id="cuanRiskChart"></canvas>
+                    </div>
+                    <div class="chart-box">
+                        <h4>📊 Distribusi Keputusan</h4>
+                        <canvas id="decisionChart"></canvas>
+                    </div>
+                    <div class="chart-box">
+                        <h4>🔍 Sebaran Skor Keamanan vs Cuan</h4>
+                        <canvas id="scatterChart"></canvas>
+                    </div>
+                    <div class="chart-box">
+                        <h4>📈 Trend Market Cap vs Liquidity</h4>
+                        <canvas id="mcLiqChart"></canvas>
+                    </div>
+                </div>
+                <div class="btn-group" style="margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="updateCharts()">🔄 Update Grafik</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detail Token -->
+    <div id="tokenModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTokenName">📊 Detail Token</h3>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // ==================== DATA STORAGE ====================
+        let savedTokens = JSON.parse(localStorage.getItem('memeTokens')) || [];
+        let cuanRiskChart, decisionChart, scatterChart, mcLiqChart;
+
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            updateStats();
+            renderSavedTable();
+            initCharts();
+        });
+
+        // ==================== TAB SWITCHING ====================
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabId === 'analytics') {
+                updateCharts();
+            } else if (tabId === 'savedList') {
+                renderSavedTable();
+            }
+        }
+
+        // ==================== VALIDATION ====================
+        function validateForm1h() {
+            const fields = [
+                { id: 'tokenName1h', label: 'Nama Token' },
+                { id: 'tokenCA1h', label: 'Contract Address' },
+                { id: 'tokenChain1h', label: 'Chain' },
+                { id: 'tokenMC1h', label: 'Market Cap' },
+                { id: 'tokenLiq1h', label: 'Liquidity' },
+                { id: 'tokenAge1h', label: 'Pair Age' }
+            ];
+
+            let isValid = true;
+            let emptyFields = [];
+
+            fields.forEach(field => {
+                const input = document.getElementById(field.id);
+                const value = input.value.trim();
+                
+                if (!value || (field.id === 'tokenChain1h' && value === '')) {
+                    isValid = false;
+                    emptyFields.push(field.label);
+                    input.classList.add('error');
+                    setTimeout(() => input.classList.remove('error'), 2000);
+                } else {
+                    input.classList.remove('error');
+                }
+            });
+
+            if (!isValid) {
+                const warningBox = document.getElementById('warning1h');
+                warningBox.querySelector('p').textContent = `⚠️ Mohon masukkan info coin: ${emptyFields.join(', ')}`;
+                warningBox.classList.add('show');
+                setTimeout(() => warningBox.classList.remove('show'), 5000);
+                showNotification('⚠️ Mohon masukkan info coin terlebih dahulu!', 'warning');
+            }
+
+            return isValid;
+        }
+
+        function validateFormLess1h() {
+            const fields = [
+                { id: 'tokenNameLess1h', label: 'Nama Token' },
+                { id: 'tokenCALess1h', label: 'Contract Address' },
+                { id: 'tokenChainLess1h', label: 'Chain' },
+                { id: 'tokenMCLess1h', label: 'Market Cap' },
+                { id: 'tokenLiqLess1h', label: 'Liquidity' },
+                { id: 'tokenAgeLess1h', label: 'Pair Age' },
+                { id: 'tokenVol5m', label: 'Volume 5m' }
+            ];
+
+            let isValid = true;
+            let emptyFields = [];
+
+            fields.forEach(field => {
+                const input = document.getElementById(field.id);
+                const value = input.value.trim();
+                
+                if (!value || (field.id === 'tokenChainLess1h' && value === '')) {
+                    isValid = false;
+                    emptyFields.push(field.label);
+                    input.classList.add('error');
+                    setTimeout(() => input.classList.remove('error'), 2000);
+                } else {
+                    input.classList.remove('error');
+                }
+            });
+
+            if (!isValid) {
+                const warningBox = document.getElementById('warningLess1h');
+                warningBox.querySelector('p').textContent = `⚠️ Mohon masukkan info coin: ${emptyFields.join(', ')}`;
+                warningBox.classList.add('show');
+                setTimeout(() => warningBox.classList.remove('show'), 5000);
+                showNotification('⚠️ Mohon masukkan info coin terlebih dahulu!', 'warning');
+            }
+
+            return isValid;
+        }
+
+        // ==================== ANALYSIS FUNCTIONS ====================
+        function analyze1h() {
+            // Validation first
+            if (!validateForm1h()) {
+                return null;
+            }
+
+            // Get values
+            const mc = parseFloat(document.getElementById('tokenMC1h').value) || 0;
+            const liq = parseFloat(document.getElementById('tokenLiq1h').value) || 0;
+            const age = parseFloat(document.getElementById('tokenAge1h').value) || 0;
+
+            // Calculate ratio
+            const ratio = mc > 0 ? (liq / mc) : 0;
+
+            // Security score (4 checks, 25 points each)
+            let securityScore = 0;
+            if (document.getElementById('mintDisabled1h').checked) securityScore += 25;
+            if (document.getElementById('freezeDisabled1h').checked) securityScore += 25;
+            if (document.getElementById('lpLocked1h').checked) securityScore += 25;
+            if (document.getElementById('topHolders1h').checked) securityScore += 25;
+
+            // Fundamental score (4 checks, 25 points each)
+            let fundamentalScore = 0;
+            if (document.getElementById('websiteOK1h').checked) fundamentalScore += 25;
+            if (document.getElementById('twitterActive1h').checked) fundamentalScore += 25;
+            if (document.getElementById('telegramOrganic1h').checked) fundamentalScore += 25;
+            if (document.getElementById('narrativeUnique1h').checked) fundamentalScore += 25;
+
+            // Display scores
+            document.getElementById('ratioScore1h').textContent = (ratio * 100).toFixed(1) + '%';
+            document.getElementById('securityScore1h').textContent = securityScore;
+            document.getElementById('fundamentalScore1h').textContent = fundamentalScore;
+
+            // Total score calculation
+            const ratioPoints = Math.min(ratio * 300, 100);
+            const totalScore = Math.round((ratioPoints * 0.4) + (securityScore * 0.4) + (fundamentalScore * 0.2));
+            document.getElementById('totalScore1h').textContent = totalScore;
+
+            // Progress bar
+            document.getElementById('progressFill1h').style.width = totalScore + '%';
+            document.getElementById('progressText1h').textContent = totalScore + '%';
+
+            // Determine status
+            let status, decision, resultClass;
+            
+            if (securityScore < 50 || ratio < 0.05 || liq < 5000) {
+                status = '⚠️ HIGH RUG RISK';
+                decision = 'SKIP';
+                resultClass = 'result-danger';
+            } else if (ratio >= 0.15 && securityScore >= 75 && fundamentalScore >= 50) {
+                status = '✅ LAYAK';
+                decision = 'BUY';
+                resultClass = 'result-safe';
+            } else if (ratio < 0.05 || securityScore < 50) {
+                status = '⚠️ HIGH RISK';
+                decision = 'SKIP';
+                resultClass = 'result-warning';
+            } else {
+                status = '⏳ REVIEW';
+                decision = 'WATCH';
+                resultClass = 'result-warning';
+            }
+
+            // Show result
+            const resultDiv = document.getElementById('result1h');
+            resultDiv.className = 'result-box ' + resultClass;
+            resultDiv.innerHTML = `
+                <div>STATUS: ${status}</div>
+                <div style="margin-top: 10px; font-size: 1.5rem;">KEPUTUSAN: ${decision}</div>
+                <div style="margin-top: 10px; font-size: 0.9rem; font-weight: normal;">
+                    Target: TP +50-100% (50% posisi) | SL -30%
+                </div>
+            `;
+            resultDiv.style.display = 'block';
+            document.getElementById('scoreDisplay1h').style.display = 'grid';
+            document.getElementById('progressContainer1h').style.display = 'block';
+
+            return { 
+                ratio, 
+                securityScore, 
+                fundamentalScore, 
+                totalScore, 
+                status, 
+                decision,
+                checks: {
+                    mintDisabled: document.getElementById('mintDisabled1h').checked,
+                    freezeDisabled: document.getElementById('freezeDisabled1h').checked,
+                    lpLocked: document.getElementById('lpLocked1h').checked,
+                    topHolders: document.getElementById('topHolders1h').checked,
+                    websiteOK: document.getElementById('websiteOK1h').checked,
+                    twitterActive: document.getElementById('twitterActive1h').checked,
+                    telegramOrganic: document.getElementById('telegramOrganic1h').checked,
+                    narrativeUnique: document.getElementById('narrativeUnique1h').checked
+                }
+            };
+        }
+
+        function analyzeLess1h() {
+            // Validation first
+            if (!validateFormLess1h()) {
+                return null;
+            }
+
+            // Get values
+            const mc = parseFloat(document.getElementById('tokenMCLess1h').value) || 0;
+            const liq = parseFloat(document.getElementById('tokenLiqLess1h').value) || 0;
+            const age = parseFloat(document.getElementById('tokenAgeLess1h').value) || 0;
+            const vol5m = parseFloat(document.getElementById('tokenVol5m').value) || 0;
+
+            // Calculate ratio
+            const ratio = mc > 0 ? (liq / mc) : 0;
+
+            // Security score (4 checks, 25 points each)
+            let securityScore = 0;
+            if (document.getElementById('rugCheckGood').checked) securityScore += 25;
+            if (document.getElementById('lpLockedLess1h').checked) securityScore += 25;
+            if (document.getElementById('noHighRisk').checked) securityScore += 25;
+            if (document.getElementById('topHolderLess1h').checked) securityScore += 25;
+
+            // Momentum score (3 checks, 33 points each)
+            let momentumScore = 0;
+            if (document.getElementById('volumeSpike').checked) momentumScore += 33;
+            if (document.getElementById('priceFollowVolume').checked) momentumScore += 33;
+            if (document.getElementById('newBuyers').checked) momentumScore += 34;
+
+            // Display scores
+            document.getElementById('ratioScoreLess1h').textContent = (ratio * 100).toFixed(1) + '%';
+            document.getElementById('securityScoreLess1h').textContent = securityScore;
+            document.getElementById('momentumScoreLess1h').textContent = momentumScore;
+
+            // Total score calculation
+            const ratioPoints = Math.min(ratio * 300, 100);
+            const totalScore = Math.round((ratioPoints * 0.3) + (securityScore * 0.4) + (momentumScore * 0.3));
+            document.getElementById('totalScoreLess1h').textContent = totalScore;
+
+            // Progress bar
+            document.getElementById('progressFillLess1h').style.width = totalScore + '%';
+            document.getElementById('progressTextLess1h').textContent = totalScore + '%';
+
+            // Determine status
+            let status, decision, resultClass;
+            
+            if (age > 60 || mc > 300000 || liq < 5000 || securityScore < 60) {
+                status = '❌ SKIP';
+                decision = 'SKIP';
+                resultClass = 'result-danger';
+            } else if (securityScore >= 80 && momentumScore >= 70) {
+                status = '🔥 HOT';
+                decision = 'BUY SMALL';
+                resultClass = 'result-safe';
+            } else if (securityScore >= 60 && momentumScore >= 50) {
+                status = '✅ OK';
+                decision = 'WATCH';
+                resultClass = 'result-warning';
+            } else {
+                status = '⏳ WAIT';
+                decision = 'SKIP';
+                resultClass = 'result-warning';
+            }
+
+            // Show result
+            const resultDiv = document.getElementById('resultLess1h');
+            resultDiv.className = 'result-box ' + resultClass;
+            resultDiv.innerHTML = `
+                <div>STATUS: ${status}</div>
+                <div style="margin-top: 10px; font-size: 1.5rem;">KEPUTUSAN: ${decision}</div>
+                <div style="margin-top: 10px; font-size: 0.9rem; font-weight: normal;">
+                    TP: +30-50% (50% posisi) | SL: -20% IMMEDIATE
+                </div>
+            `;
+            resultDiv.style.display = 'block';
+            document.getElementById('scoreDisplayLess1h').style.display = 'grid';
+            document.getElementById('progressContainerLess1h').style.display = 'block';
+
+            return { 
+                ratio, 
+                securityScore, 
+                momentumScore, 
+                totalScore, 
+                status, 
+                decision,
+                checks: {
+                    rugCheckGood: document.getElementById('rugCheckGood').checked,
+                    lpLocked: document.getElementById('lpLockedLess1h').checked,
+                    noHighRisk: document.getElementById('noHighRisk').checked,
+                    topHolder: document.getElementById('topHolderLess1h').checked,
+                    volumeSpike: document.getElementById('volumeSpike').checked,
+                    priceFollowVolume: document.getElementById('priceFollowVolume').checked,
+                    newBuyers: document.getElementById('newBuyers').checked
+                }
+            };
+        }
+
+        // ==================== SAVE TOKEN ====================
+        function saveToken(timeframe) {
+            let analysisResult;
+            
+            if (timeframe === '1h') {
+                analysisResult = analyze1h();
+                if (!analysisResult) return;
+                if (!document.getElementById('tokenName1h').value) {
+                    showNotification('⚠️ Isi nama token terlebih dahulu!', 'warning');
+                    return;
+                }
+            } else {
+                analysisResult = analyzeLess1h();
+                if (!analysisResult) return;
+                if (!document.getElementById('tokenNameLess1h').value) {
+                    showNotification('⚠️ Isi nama token terlebih dahulu!', 'warning');
+                    return;
+                }
+            }
+
+            const tokenData = {
+                id: Date.now(),
+                timestamp: new Date().toLocaleString('id-ID'),
+                timeframe: timeframe,
+                name: timeframe === '1h' ? document.getElementById('tokenName1h').value : document.getElementById('tokenNameLess1h').value,
+                ca: timeframe === '1h' ? document.getElementById('tokenCA1h').value : document.getElementById('tokenCALess1h').value,
+                chain: timeframe === '1h' ? document.getElementById('tokenChain1h').value : document.getElementById('tokenChainLess1h').value,
+                mc: timeframe === '1h' ? parseFloat(document.getElementById('tokenMC1h').value) : parseFloat(document.getElementById('tokenMCLess1h').value),
+                liq: timeframe === '1h' ? parseFloat(document.getElementById('tokenLiq1h').value) : parseFloat(document.getElementById('tokenLiqLess1h').value),
+                age: timeframe === '1h' ? parseFloat(document.getElementById('tokenAge1h').value) : parseFloat(document.getElementById('tokenAgeLess1h').value),
+                vol5m: timeframe === '1h' ? 0 : parseFloat(document.getElementById('tokenVol5m').value),
+                ratio: analysisResult.ratio,
+                securityScore: analysisResult.securityScore,
+                fundamentalScore: analysisResult.fundamentalScore || 0,
+                momentumScore: analysisResult.momentumScore || 0,
+                totalScore: analysisResult.totalScore,
+                status: analysisResult.status,
+                decision: analysisResult.decision,
+                checks: analysisResult.checks
+            };
+
+            savedTokens.unshift(tokenData);
+            localStorage.setItem('memeTokens', JSON.stringify(savedTokens));
+            
+            updateStats();
+            renderSavedTable();
+            showNotification('✅ Token berhasil disimpan!', 'success');
+            
+            if (timeframe === '1h') {
+                resetForm('form1h');
+            } else {
+                resetForm('formLess1h');
+            }
+        }
+
+        // ==================== RENDER TABLE ====================
+        function renderSavedTable() {
+            const tbody = document.getElementById('savedTableBody');
+            const emptyState = document.getElementById('emptyState');
+            tbody.innerHTML = '';
+
+            if (savedTokens.length === 0) {
+                emptyState.style.display = 'block';
+                return;
+            } else {
+                emptyState.style.display = 'none';
+            }
+
+            savedTokens.forEach(token => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${token.timestamp}</td>
+                    <td><strong>${token.name}</strong><br><small style="color: var(--gray);">${token.ca.substring(0, 8)}...</small></td>
+                    <td>${token.chain}</td>
+                    <td>$${token.mc.toLocaleString()}</td>
+                    <td>$${token.liq.toLocaleString()}</td>
+                    <td>${(token.ratio * 100).toFixed(1)}%</td>
+                    <td>${token.totalScore}</td>
+                    <td><span class="status-badge ${token.decision === 'BUY' || token.decision === 'BUY SMALL' ? 'status-buy' : token.decision === 'WATCH' ? 'status-watch' : 'status-skip'}">${token.status}</span></td>
+                    <td><span class="status-badge ${token.decision === 'BUY' || token.decision === 'BUY SMALL' ? 'status-buy' : token.decision === 'WATCH' ? 'status-watch' : 'status-skip'}">${token.decision}</span></td>
+                    <td>
+                        <button class="action-btn action-btn-view" onclick="viewTokenDetail(${token.id})">👁️ Detail</button>
+                        <button class="action-btn action-btn-delete" onclick="deleteToken(${token.id})">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // ==================== VIEW TOKEN DETAIL ====================
+        function viewTokenDetail(id) {
+            const token = savedTokens.find(t => t.id === id);
+            if (!token) return;
+
+            const modal = document.getElementById('tokenModal');
+            const modalBody = document.getElementById('modalBody');
+            document.getElementById('modalTokenName').textContent = `📊 ${token.name} - Detail Analisa`;
+
+            let checksHTML = '';
+            
+            if (token.timeframe === '1h') {
+                checksHTML = `
+                    <div class="detail-section">
+                        <h4>🔒 Keamanan Teknis</h4>
+                        <div class="checklist-review">
+                            <div class="checklist-item ${token.checks.mintDisabled ? 'checked' : 'unchecked'}">
+                                <span class="check-icon ${token.checks.mintDisabled ? 'checked' : 'unchecked'}">${token.checks.mintDisabled ? '✅' : '❌'}</span>
+                                <span>Mint Authority Disabled</span>
+                            </div>
+                            <div class="checklist-item ${token.checks.freezeDisabled ? 'checked' : 'unchecked'}">
+                                <span class="check-icon ${token.checks.freezeDisabled ? 'checked' : 'unchecked'}">${token.checks.freezeDisabled ? '✅' : '❌'}</span>
+                                <span>Freeze Authority Disabled</span>
+                            </div>
+                            <div class="checklist-item ${token.checks.lpLocked ? 'checked' : 'unchecked'}">
+                                <span class="check-icon ${token.checks.lpLocked ? 'checked' : 'unchecked'}">${token.checks.lpLocked ? '✅' : '❌'}</span>
+                                <span>LP Locked/Burned</span>
+                            </div>
+                            <div class="checklist-item ${token.checks.topHolders ? 'checked' : 'unchecked'}">
+                                <span class="check-icon ${token.checks.topHolders ? 'checked' : 'unchecked'}">${token.checks.topHolders ? '✅' : '❌'}</span>
+                                <span>Top 10 Holders < 35%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <h4>📱 Fundamental & Narasi</h4>
+                        <div class="checklist-review">
+                            <div class="checklist-item ${token.checks.websiteOK ? 'checked' : 'unchecked'}">
+                                <span class="check-icon ${token.checks.websiteOK ? 'checked' : 'unchecked'}">${token.checks.websiteOK ? '✅' : '❌'}</span>
+                                <span>Website Profesional</span>
+                            </div>
+                            <div class="checklist-item ${token.checks.twitterActive ? 'checked' : 'unchecked'}">
+                                <span class="check-icon ${token.checks.twitterActive ? 'checked' : 'unchecked'}">${token.checks.twitterActive ? '✅' : '❌'}</span>
+                                <span>Twitter/X Aktif</span>
+                            </div>
+                            <div class="checklist-item ${token.checks.telegramOrganic ? 'checked' : 'unchecked'}">
+                                <span class="check-icon ${token.checks.telegramOrganic ? 'checked' : 'unchecked'}">${token.checks.telegramOrganic ? '✅' : '❌'}</span>
+                                <span>Telegram Organik</span>
+                            </div>
+                            <div class="checklist-item ${token.checks.narrativeUnique ? 'checked' : 'unchecked'}">
+                                <span class="check-icon ${token.checks.narrativeUnique ? 'checked' : 'unchecked'}">${token.checks.narrativeUnique ? '✅' : '❌'}</span>
+                                <span>Narasi Unik/Tren</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                checksHTML = `
+                    <div class="detail-section">
+                        <h4>🔒 Keamanan Kilat</h4>
+                        <div class="checklist-review">
+                            <div class="checklist-item ${token.checks.rugCheckGood ? 'checked' : 'unchecked'}">
+                                <span class="check-icon ${token.checks.rugCheckGood ? 'checked' : 'unchecked'}">${token.checks.rugCheckGood ? '✅' : '❌'}</span>
+                                <span>RugCheck: Good</span>
+                            </div>
+                            <div class="checklist-item ${token.checks.lpLocked ? 'checked' : 'unchecked'}">
+                                <span class="check-icon ${token.checks.lpLocked ? 'checked' : 'unchecked'}">${token.checks.lpLocked ? '✅' : '❌'}</span>
+                                <span>LP Locked</span>
+                            </div>
+                            <div class="checklist-item ${token.checks.noHighRisk ? 'checked' : 'unchecked'}">
+                                <span class="check-icon ${token.checks.noHighRisk ? 'checked' : 'unchecked'}">${token.checks.noHighRisk ? '✅' : '❌'}</span>
+                                <span>No High Risk</span>
+                            </div>
+                            <div class="checklist-item ${token.checks.topHolder ? 'checked' : 'unchecked'}">
+                                <span class="check-icon ${token.checks.topHolder ? 'checked' : 'unchecked'}">${token.checks.topHolder ? '✅' : '❌'}</span>
+                                <span>Top Holder < 15%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <h4>📈 Momentum</h4>
+                        <div class="checklist-review">
+                            <div class="checklist-item ${token.checks.volumeSpike ? 'checked' : 'unchecked'}">
+                                <span class="check-icon ${token.checks.volumeSpike ? 'checked' : 'unchecked'}">${token.checks.volumeSpike ? '✅' : '❌'}</span>
+                                <span>Volume Spike 5m</span>
+                            </div>
+                            <div class="checklist-item ${token.checks.priceFollowVolume ? 'checked' : 'unchecked'}">
+                                <span class="check-icon ${token.checks.priceFollowVolume ? 'checked' : 'unchecked'}">${token.checks.priceFollowVolume ? '✅' : '❌'}</span>
+                                <span>Price Follow Volume</span>
+                            </div>
+                            <div class="checklist-item ${token.checks.newBuyers ? 'checked' : 'unchecked'}">
+                                <span class="check-icon ${token.checks.newBuyers ? 'checked' : 'unchecked'}">${token.checks.newBuyers ? '✅' : '❌'}</span>
+                                <span>New Buyers Konsisten</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            modalBody.innerHTML = `
+                <div class="detail-section">
+                    <h4>📊 Informasi Token</h4>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Nama Token</div>
+                            <div class="detail-value">${token.name}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Contract Address</div>
+                            <div class="detail-value" style="font-size: 0.9rem;">${token.ca}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Chain</div>
+                            <div class="detail-value">${token.chain}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Timeframe</div>
+                            <div class="detail-value">${token.timeframe === '1h' ? '> 1 Jam' : '< 1 Jam'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Market Cap</div>
+                            <div class="detail-value">$${token.mc.toLocaleString()}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Liquidity</div>
+                            <div class="detail-value">$${token.liq.toLocaleString()}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Pair Age</div>
+                            <div class="detail-value">${token.age} ${token.timeframe === '1h' ? 'Jam' : 'Menit'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Volume 5m</div>
+                            <div class="detail-value">$${token.vol5m.toLocaleString()}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h4>📈 Skor Analisa</h4>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Rasio Liq/MC</div>
+                            <div class="detail-value">${(token.ratio * 100).toFixed(1)}%</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Skor Keamanan</div>
+                            <div class="detail-value">${token.securityScore}/100</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">${token.timeframe === '1h' ? 'Skor Fundamental' : 'Skor Momentum'}</div>
+                            <div class="detail-value">${token.timeframe === '1h' ? token.fundamentalScore : token.momentumScore}/100</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Total Score</div>
+                            <div class="detail-value">${token.totalScore}/100</div>
+                        </div>
+                    </div>
+                </div>
+
+                ${checksHTML}
+
+                <div class="detail-section">
+                    <h4>🎯 Kesimpulan</h4>
+                    <div class="result-box ${token.decision === 'BUY' || token.decision === 'BUY SMALL' ? 'result-safe' : token.decision === 'WATCH' ? 'result-warning' : 'result-danger'}" style="margin-top: 0;">
+                        <div>STATUS: ${token.status}</div>
+                        <div style="margin-top: 10px; font-size: 1.5rem;">KEPUTUSAN: ${token.decision}</div>
+                        <div style="margin-top: 10px; font-size: 0.9rem; font-weight: normal;">
+                            ${token.timeframe === '1h' ? 'Target: TP +50-100% (50% posisi) | SL -30%' : 'TP: +30-50% (50% posisi) | SL: -20% IMMEDIATE'}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h4>📝 Metadata</h4>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Waktu Analisa</div>
+                            <div class="detail-value" style="font-size: 0.9rem;">${token.timestamp}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">ID Token</div>
+                            <div class="detail-value" style="font-size: 0.9rem;">${token.id}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('tokenModal').classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('tokenModal').addEventListener('click', (e) => {
+            if (e.target.id === 'tokenModal') {
+                closeModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // ==================== DELETE TOKEN ====================
+        function deleteToken(id) {
+            if (confirm('Hapus token ini dari daftar?')) {
+                savedTokens = savedTokens.filter(t => t.id !== id);
+                localStorage.setItem('memeTokens', JSON.stringify(savedTokens));
+                updateStats();
+                renderSavedTable();
+                showNotification('🗑️ Token dihapus!', 'success');
+            }
+        }
+
+        // ==================== CLEAR ALL DATA ====================
+        function clearAllData() {
+            if (confirm('⚠️ Yakin ingin menghapus SEMUA data? Ini tidak bisa dibatalkan!')) {
+                savedTokens = [];
+                localStorage.setItem('memeTokens', JSON.stringify(savedTokens));
+                updateStats();
+                renderSavedTable();
+                updateCharts();
+                showNotification('🗑️ Semua data dihapus!', 'success');
+            }
+        }
+
+        // ==================== EXPORT CSV ====================
+        function exportData() {
+            if (savedTokens.length === 0) {
+                showNotification('⚠️ Tidak ada data untuk diexport!', 'warning');
+                return;
+            }
+
+            const headers = ['Waktu', 'Timeframe', 'Token', 'CA', 'Chain', 'MC', 'Liquidity', 'Age', 'Volume5m', 'Rasio', 'Security Score', 'Fundamental/Momentum', 'Total Score', 'Status', 'Decision'];
+            const rows = savedTokens.map(t => [
+                t.timestamp,
+                t.timeframe,
+                t.name,
+                t.ca,
+                t.chain,
+                t.mc,
+                t.liq,
+                t.age,
+                t.vol5m,
+                t.ratio.toFixed(4),
+                t.securityScore,
+                t.timeframe === '1h' ? t.fundamentalScore : t.momentumScore,
+                t.totalScore,
+                t.status,
+                t.decision
+            ]);
+
+            const csvContent = [
+                headers.join(','),
+                ...rows.map(row => row.join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `meme-coins-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            
+            showNotification('📥 Data berhasil diexport!', 'success');
+        }
+
+        // ==================== UPDATE STATS ====================
+        function updateStats() {
+            document.getElementById('totalTokens').textContent = savedTokens.length;
+            document.getElementById('buySignals').textContent = savedTokens.filter(t => t.decision === 'BUY' || t.decision === 'BUY SMALL').length;
+            document.getElementById('watchSignals').textContent = savedTokens.filter(t => t.decision === 'WATCH').length;
+            document.getElementById('skipSignals').textContent = savedTokens.filter(t => t.decision === 'SKIP').length;
+        }
+
+        // ==================== RESET FORM ====================
+        function resetForm(formId) {
+            document.getElementById(formId).reset();
+            if (formId === 'form1h') {
+                document.getElementById('result1h').style.display = 'none';
+                document.getElementById('scoreDisplay1h').style.display = 'none';
+                document.getElementById('progressContainer1h').style.display = 'none';
+                document.getElementById('warning1h').classList.remove('show');
+            } else {
+                document.getElementById('resultLess1h').style.display = 'none';
+                document.getElementById('scoreDisplayLess1h').style.display = 'none';
+                document.getElementById('progressContainerLess1h').style.display = 'none';
+                document.getElementById('warningLess1h').classList.remove('show');
+            }
+        }
+
+        // ==================== NOTIFICATION ====================
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = 'notification ' + type + ' show';
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // ==================== CHARTS ====================
+        function initCharts() {
+            // Cuan vs Risk Chart
+            const cuanRiskCtx = document.getElementById('cuanRiskChart').getContext('2d');
+            cuanRiskChart = new Chart(cuanRiskCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Potensi Cuan',
+                            data: [],
+                            backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                            borderColor: 'rgba(16, 185, 129, 1)',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Risiko Rug Pull',
+                            data: [],
+                            type: 'line',
+                            borderColor: 'rgba(239, 68, 68, 1)',
+                            backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                            borderWidth: 3,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#64748b' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#64748b', maxRotation: 45 }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#f8fafc' } }
+                    }
+                }
+            });
+
+            // Decision Distribution Chart
+            const decisionCtx = document.getElementById('decisionChart').getContext('2d');
+            decisionChart = new Chart(decisionCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['BUY', 'WATCH', 'SKIP'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: [
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(239, 68, 68, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(245, 158, 11, 1)',
+                            'rgba(239, 68, 68, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { 
+                            position: 'bottom',
+                            labels: { color: '#f8fafc' }
+                        }
+                    }
+                }
+            });
+
+            // Scatter Chart
+            const scatterCtx = document.getElementById('scatterChart').getContext('2d');
+            scatterChart = new Chart(scatterCtx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Token',
+                        data: [],
+                        backgroundColor: 'rgba(241, 196, 15, 0.8)',
+                        borderColor: 'rgba(241, 196, 15, 1)',
+                        pointRadius: 8,
+                        pointHoverRadius: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Skor Keamanan', color: '#64748b' },
+                            min: 0,
+                            max: 100,
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#64748b' }
+                        },
+                        y: {
+                            title: { display: true, text: 'Potensi Cuan', color: '#64748b' },
+                            min: 0,
+                            max: 100,
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#64748b' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            // MC vs Liq Chart
+            const mcLiqCtx = document.getElementById('mcLiqChart').getContext('2d');
+            mcLiqChart = new Chart(mcLiqCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Market Cap ($)',
+                            data: [],
+                            borderColor: 'rgba(124, 58, 237, 1)',
+                            backgroundColor: 'rgba(124, 58, 237, 0.2)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Liquidity ($)',
+                            data: [],
+                            borderColor: 'rgba(0, 212, 170, 1)',
+                            backgroundColor: 'rgba(0, 212, 170, 0.2)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: 'Market Cap', color: '#7c3aed' },
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#7c3aed' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: { display: true, text: 'Liquidity', color: '#00d4aa' },
+                            grid: { display: false },
+                            ticks: { color: '#00d4aa' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#64748b', maxRotation: 45 }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#f8fafc' } }
+                    }
+                }
+            });
+        }
+
+        function updateCharts() {
+            if (savedTokens.length === 0) {
+                showNotification('⚠️ Belum ada data untuk ditampilkan di grafik!', 'warning');
+                return;
+            }
+
+            const labels = savedTokens.slice(0, 20).map(t => t.name);
+            const cuanData = savedTokens.slice(0, 20).map(t => t.totalScore);
+            const riskData = savedTokens.slice(0, 20).map(t => 100 - t.securityScore);
+            const scatterData = savedTokens.map(t => ({ x: t.securityScore, y: t.totalScore }));
+            const mcData = savedTokens.slice(0, 20).map(t => t.mc);
+            const liqData = savedTokens.slice(0, 20).map(t => t.liq);
+
+            const buyCount = savedTokens.filter(t => t.decision === 'BUY' || t.decision === 'BUY SMALL').length;
+            const watchCount = savedTokens.filter(t => t.decision === 'WATCH').length;
+            const skipCount = savedTokens.filter(t => t.decision === 'SKIP').length;
+
+            cuanRiskChart.data.labels = labels;
+            cuanRiskChart.data.datasets[0].data = cuanData;
+            cuanRiskChart.data.datasets[1].data = riskData;
+            cuanRiskChart.update();
+
+            decisionChart.data.datasets[0].data = [buyCount, watchCount, skipCount];
+            decisionChart.update();
+
+            scatterChart.data.datasets[0].data = scatterData;
+            scatterChart.update();
+
+            mcLiqChart.data.labels = labels;
+            mcLiqChart.data.datasets[0].data = mcData;
+            mcLiqChart.data.datasets[1].data = liqData;
+            mcLiqChart.update();
+
+            showNotification('📊 Grafik berhasil diupdate!', 'success');
+        }
+
+        // ==================== KEYBOARD SHORTCUTS ====================
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                const activeTab = document.querySelector('.tab-content.active');
+                if (activeTab.id === 'timeframe1h') {
+                    saveToken('1h');
+                } else if (activeTab.id === 'timeframeLess1h') {
+                    saveToken('less1h');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
